@@ -2,7 +2,27 @@
 <resources>
 
     <string name="app_name">SecretMessage</string>
-    <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+  	<string name="action_settings">Settings</string>
+    <string name="message_box_hint">Message</string>
+    <string name="phone_number_hint">Recipient Phone Number</string>
+    <string name="button_send_text">Send</string>
+    <string name="history_hint">Message history&#8230; no messages yet.</string>
+    <string name="method_openSettings">openSettings</string>
+    <string name="settings_title">Settings</string>
+    <string name="button_clear_history">Clear</string>
+    <string name="radio_pin_label">PIN</string>
+    <string name="radio_pass_label">Password</string>
+    <string name="radio_none_label">No Authentication</string>
+    <string name="radio_authtype_title">Authentication to Access App</string>
+    <string name="clear_history_title">Clear Message History</string>
+    <string name="button_ChangePassword">Change password</string>
+    <string name="login_password_title">Enter your password</string>
+    <string name="button_Authenticate">Go</string>
+	<string name="button_SaveSettngs">Save Settings</string>
+	<string name="changepass_title">Change Password</string>
+	<string name="changepass_prompt">Please enter your new password:</string>
+	<string name="changepass_reprompt">Once more:</string>
+	<string name="newmessage_title">New Conversation</string>
+	<string name="newmessage_prompt">Address of new recipient:</string>
 
 </resources>
