@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="false"
+    android:textAlignment="viewStart"
+    tools:context=".LoginPasswordActivity" >
+
+    <LinearLayout
+        android:id="@+id/password_bar_top"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical" >
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/password_rule_top"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/password_bar_top"
+        android:orientation="vertical" >
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/password_bar_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:orientation="vertical" >
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/password_rule_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@+id/password_bar_bottom"
+        android:layout_alignParentLeft="true"
+        android:orientation="vertical" >
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/text_LoginPasswordPrompt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="@string/login_password_title"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+     />
+
+    <LinearLayout
+        android:id="@+id/password_wrapper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/text_LoginPasswordPrompt"
+        android:layout_centerHorizontal="true"
+        android:padding="5dp" >
+
+         <EditText
+            android:id="@+id/text_LoginPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:ems="10"
+            android:inputType="textPassword"
+            >
+            <requestFocus />
+        </EditText>
+
+        <Button
+            android:id="@+id/button_LoginTest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:onClick="authenticate"
+            android:text="@string/button_Authenticate" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/image_LoginLogo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/text_LoginPasswordPrompt"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp"
+        android:src="@drawable/ic_launcher" />
+
+</RelativeLayout>
