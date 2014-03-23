@@ -30,12 +30,10 @@ public class BaseActivity extends Activity {
 	Uri MESSAGE_URI = Uri.parse("content://sms/inbox");
 	ContactHandler contacts;
 	List<String> addresses = new ArrayList<String>();
-	ListView threads;
+	ListView messageThreads;
 	Button button_Refresh;
 	Button button_Settings;
 	Button button_NewMessage;
-
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -46,7 +44,7 @@ public class BaseActivity extends Activity {
 
 		setContentView(R.layout.activity_base);
 
-		threads = (ListView)findViewById(R.id.listView_Threads);
+		messageThreads = (ListView)findViewById(R.id.listView_Threads);
 		button_Refresh = (Button)findViewById(R.id.button_Refresh);
 		button_Settings = (Button)findViewById(R.id.button_Settings);
 		button_NewMessage = (Button)findViewById(R.id.button_NewMessage);
@@ -55,7 +53,7 @@ public class BaseActivity extends Activity {
 		contacts.getContactsList(this);
 		this.updateConversationLists();
 
-		threads.setOnItemClickListener(new OnItemClickListener()
+		messageThreads.setOnItemClickListener(new OnItemClickListener()
 		{
 			public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
 			{
@@ -133,7 +131,7 @@ public class BaseActivity extends Activity {
 		String[] from = {"name", "body"};
 		int[] to = {R.id.date, R.id.body};
 		SimpleAdapter adapter = new SimpleAdapter(getBaseContext(), hashList, R.layout.contact_listview_item, from, to);
-		threads.setAdapter(adapter);
+		messageThreads.setAdapter(adapter);
 
 	}
 
@@ -160,7 +158,6 @@ public class BaseActivity extends Activity {
 	public void openMessaging(View view, int position)
 	{
 		Intent intent = new Intent(this, MessagingActivity.class);
-
 		String address = addresses.get(position);
 		String name = contacts.getName(address, this);
 		intent.putExtra("targetAddress", address);

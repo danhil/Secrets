@@ -20,10 +20,8 @@ public class NewMessageActivity extends Activity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_newmessage);
-
 		phoneNumber = (EditText)findViewById(R.id.edittext_newmessage_recipient);
 	}
 

@@ -1,10 +1,10 @@
 /**
- * Encapsulates all functions and variables required to pass keys securely (using DH), encrypt/decrypt text (using AES in CTR mode), and store/retrieve secret keys (using Keystore)
- * 
- * Alice should call aliceProducePublicKey() and send the result to Bob.
- * Bob should call bobProducePublicKeyAndSecretKey() with the data received from Alice and then pass the result back to Alice.
- * Alice should call aliceProduceSecretKey().
- * After these three calls, Alice and Bob may call encrypt() and decrypt().
+ * Encapsulates all functions and variables required to pass keys securely (using DIFFIEHELLMAN
+ * ), encrypt/decrypt text (using AES in CTR mode), and store/retrieve secret keys (using Keystore)
+ * A should call AliceProducePublicKey() and send the result to B.
+ * B should call BProducePublicKeyAndSecretKey() with the data received from A and then pass the result back to A.
+ * A should call aliceProduceSecretKey().
+ * After these three calls, A and B may call encrypt() and decrypt().
  * 
  */
 
@@ -43,7 +43,7 @@ public class EncryptionHandler
 			agreeMap = new HashMap<String, KeyAgreement>();
 	}
 	
-	public byte[] aliceProducePublicKey(String recipient)
+	public byte[] aProducePublicKey(String recipient)
 	{
 		try {
 			AlgorithmParameterGenerator generator = AlgorithmParameterGenerator.getInstance("DH");
@@ -59,7 +59,7 @@ public class EncryptionHandler
 		} catch (Exception e) { return null; }
 	}
 	
-	public byte[] bobProducePublicKeyAndSecretKey(byte[] alicePublicKeyBytes, String recipient, String Password)
+	public byte[] bProducePublicKeyAndSecretKey(byte[] alicePublicKeyBytes, String recipient, String Password)
 	{
 		try {
 			KeyFactory keyFactory = KeyFactory.getInstance("DH");
@@ -77,7 +77,7 @@ public class EncryptionHandler
 		} catch (Exception e) { return null; }
 	}
 	
-	public boolean aliceProduceSecretKey(byte[] bobPublicKeyBytes, String recipient, String Password)
+	public boolean aProduceSecretKey(byte[] bobPublicKeyBytes, String recipient, String Password)
 	{
 		try {
 			KeyFactory keyFactory = KeyFactory.getInstance("DH");
