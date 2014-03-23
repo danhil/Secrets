@@ -48,7 +48,7 @@ public class LoginActivity extends Activity
 		{
 			password.setText("");	// Reset text in password field
 			Intent intent = new Intent(this, BaseActivity.class);
-			startActivity(intent);	// Launch main
+			startActivity(intent);
 		}
 		else
 		{
