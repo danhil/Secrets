@@ -47,8 +47,8 @@ public class LoginActivity extends Activity
 		if (input.equals(stored) || input.equals(MainActivity.SUDOAUTH))
 		{
 			password.setText("");	// Reset text in password field
-			//Intent intent = new Intent(this, MessaageActivity.class);
-			//startActivity(intent);	// Launch main
+			Intent intent = new Intent(this, BaseActivity.class);
+			startActivity(intent);	// Launch main
 		}
 		else
 		{
