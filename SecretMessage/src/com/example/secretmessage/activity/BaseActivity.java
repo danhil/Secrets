@@ -33,6 +33,8 @@ public class BaseActivity extends Activity {
 	ListView threads;
 	Button button_Refresh;
 	Button button_Settings;
+	Button button_NewMessage;
+
 
 
 	@Override
@@ -47,7 +49,7 @@ public class BaseActivity extends Activity {
 		threads = (ListView)findViewById(R.id.listView_Threads);
 		button_Refresh = (Button)findViewById(R.id.button_Refresh);
 		button_Settings = (Button)findViewById(R.id.button_Settings);
-		
+		button_NewMessage = (Button)findViewById(R.id.button_NewMessage);
 
 		contacts = new ContactHandler(this);
 		contacts.getContactsList(this);
@@ -75,6 +77,14 @@ public class BaseActivity extends Activity {
 			public void onClick(View v) 
 			{                
 				goToSettings(v);
+			}
+		});
+		
+		button_NewMessage.setOnClickListener(new View.OnClickListener()
+		{
+			public void onClick(View v) 
+			{                
+				newMessage(v);
 			}
 		});
 		
@@ -161,8 +171,8 @@ public class BaseActivity extends Activity {
 
 	public void newMessage(View view)
 	{
-		//Intent intent = new Intent(this, NewMessageActivity.class);
-		//startActivity(intent);
+		Intent intent = new Intent(this, NewMessageActivity.class);
+		startActivity(intent);
 	}
 
 };

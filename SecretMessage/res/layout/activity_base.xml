@@ -23,7 +23,6 @@
             android:layout_centerVertical="true"
             android:minHeight="30dp"
             android:minWidth="30dp"
-            android:onClick="openSettings"
             android:text="@string/button_Settings" />
 
         <Button
@@ -47,7 +46,6 @@
             android:layout_toLeftOf="@+id/button_Refresh"
             android:minHeight="30dp"
             android:minWidth="30dp"
-            android:onClick="newMessage"
             android:text="@string/button_NewMessage" />
     </RelativeLayout>
 

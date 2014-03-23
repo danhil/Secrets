@@ -47,6 +47,11 @@
             android:label="@string/app_name"
             android:noHistory="true" >
         </activity>
+        <activity
+            android:name="com.example.secretmessage.activity.NewMessageActivity"
+            android:label="@string/app_name"
+            android:noHistory="true" >
+        </activity>
     </application>
 
 </manifest>
