@@ -1,0 +1,61 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/LinearLayout1"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:clickable="false"
+    android:orientation="vertical"
+    android:textAlignment="viewStart"
+    tools:context=".MainActivity" >
+
+    <RelativeLayout
+        android:id="@+id/RelativeLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="50dp"
+        android:padding="5dp" >
+
+        <Button
+            android:id="@+id/button_Settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:minHeight="30dp"
+            android:minWidth="30dp"
+            android:onClick="openSettings"
+            android:text="@string/button_Settings" />
+
+        <Button
+            android:id="@+id/button_Refresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/button_Settings"
+            android:layout_marginRight="20dp"
+            android:layout_toLeftOf="@+id/button_Settings"
+            android:minHeight="30dp"
+            android:minWidth="30dp"
+            android:onClick="refresh"
+            android:text="@string/button_Refresh" />
+
+        <Button
+            android:id="@+id/button_NewMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/button_Settings"
+            android:layout_marginRight="20dp"
+            android:layout_toLeftOf="@+id/button_Refresh"
+            android:minHeight="30dp"
+            android:minWidth="30dp"
+            android:onClick="newMessage"
+            android:text="@string/button_NewMessage" />
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/listView_Threads"
+        android:layout_width="match_parent"
+        android:layout_height="262dp" >
+
+    </ListView>
+
+</LinearLayout>
