@@ -19,6 +19,9 @@
     <string name="login_password_title">Enter your password</string>
     <string name="button_Authenticate">Go</string>
 	<string name="button_SaveSettngs">Save Settings</string>
+	<string name="button_NewMessage">New message</string>
+	<string name="button_Refresh">Refresh</string>
+	<string name="button_Settings">Settings</string>
 	<string name="changepass_title">Change Password</string>
 	<string name="changepass_prompt">Please enter your new password:</string>
 	<string name="changepass_reprompt">Once more:</string>
