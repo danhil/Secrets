@@ -1,0 +1,84 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="false"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:textAlignment="viewStart"
+    tools:context=".SettingsActivity" >
+
+    <TextView
+        android:id="@+id/text_settingsTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/settings_title"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+         />
+
+    <Button
+        android:id="@+id/button_clearHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/text_ClearHistory_title"
+        android:text="@string/button_clear_history"
+        />
+
+    <TextView
+        android:id="@+id/text_ClearHistory_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/button_clearHistory"
+        android:layout_below="@+id/text_settingsTitle"
+        android:layout_marginTop="15dp"
+        android:text="@string/clear_history_title"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+         />
+
+    <TextView
+        android:id="@+id/text_radio_AuthType_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button_clearHistory"
+        android:layout_marginTop="15dp"
+        android:text="@string/radio_authtype_title"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+         />
+
+    <RadioGroup
+        android:id="@+id/radioGroup_AuthType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/button_clearHistory"
+        android:layout_below="@+id/text_radio_AuthType_title"
+        android:layout_marginTop="15dp"
+        android:checkedButton="@+id/radio_AuthType_None"
+        android:orientation="vertical" >
+
+        <RadioButton
+            android:id="@+id/radio_AuthType_Pass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="processRadioClick"
+            android:text="@string/radio_pass_label"
+            />
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/button_ChangePinPass"
+        android:onClick="openChangePinPass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/radioGroup_AuthType"
+        android:layout_below="@+id/radioGroup_AuthType"
+        android:layout_marginTop="15dp"
+        android:text="@string/button_ChangePassword"
+      />
+
+</RelativeLayout>
