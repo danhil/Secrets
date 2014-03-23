@@ -6,6 +6,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -135,8 +136,8 @@ public class BaseActivity extends Activity {
 
 	public void goToSettings(View view)
 	{
-		//Intent intent = new Intent(this, SettingsActivity.class);
-		//startActivity(intent);
+		Intent intent = new Intent(this, SettingsActivity.class);
+		startActivity(intent);
 	}
 
 	public void refresh()
