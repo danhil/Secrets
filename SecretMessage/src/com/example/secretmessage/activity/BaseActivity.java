@@ -159,14 +159,14 @@ public class BaseActivity extends Activity {
 
 	public void openMessaging(View view, int position)
 	{
-		//Intent intent = new Intent(this, MessagingActivity.class);
+		Intent intent = new Intent(this, MessagingActivity.class);
 
 		String address = addresses.get(position);
 		String name = contacts.getName(address, this);
-		//intent.putExtra("targetAddress", address);
-		//intent.putExtra("targetName", name);
+		intent.putExtra("targetAddress", address);
+		intent.putExtra("targetName", name);
 
-		//startActivity(intent);
+		startActivity(intent);
 	}
 
 	public void newMessage(View view)
