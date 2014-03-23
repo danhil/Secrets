@@ -26,14 +26,17 @@ public final class R {
     public static final class id {
         public static final int LinearLayout1=0x7f080000;
         public static final int RelativeLayout1=0x7f080001;
-        public static final int action_settings=0x7f080016;
+        public static final int action_settings=0x7f080019;
+        public static final int body=0x7f080018;
         public static final int button_LoginTest=0x7f080014;
         public static final int button_NewMessage=0x7f080004;
         public static final int button_Refresh=0x7f080003;
         public static final int button_Settings=0x7f080002;
         public static final int button_changepass=0x7f08000c;
+        public static final int date=0x7f080017;
         public static final int image_LoginLogo=0x7f080015;
         public static final int listView_Threads=0x7f080005;
+        public static final int listview_item_base=0x7f080016;
         public static final int password_bar_bottom=0x7f08000f;
         public static final int password_bar_top=0x7f08000d;
         public static final int password_rule_bottom=0x7f080010;
@@ -53,6 +56,7 @@ public final class R {
         public static final int activity_changepassword=0x7f030001;
         public static final int activity_login=0x7f030002;
         public static final int activity_main=0x7f030003;
+        public static final int contact_listview_item=0x7f030004;
     }
     public static final class menu {
         public static final int main=0x7f070000;

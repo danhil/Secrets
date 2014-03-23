@@ -1,13 +1,11 @@
 package com.example.secretmessage.activity;
 
-import android.app.Activity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import android.app.Activity;
 import android.content.ContentResolver;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,110 +18,151 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-
 import com.example.secretmessage.R;
 import com.example.secretmessage.handler.ContactHandler;
+import com.example.secretmessage.handler.SmsReceiverHandler;
 import com.example.secretmessage.utils.StringUtils;
 
 public class BaseActivity extends Activity {
-static final String TAG = BaseActivity.class.getSimpleName();
+	static final String TAG = BaseActivity.class.getSimpleName();
 
-Uri Message_URI = Uri.parse("content://sms/inbox");
-ContactHandler contacts;
-List<String> addresses = new ArrayList<String>();
-ListView threads;
-Button button_Refresh;
+	Uri MESSAGE_URI = Uri.parse("content://sms/inbox");
+	ContactHandler contacts;
+	List<String> addresses = new ArrayList<String>();
+	ListView threads;
+	Button button_Refresh;
+	Button button_Settings;
 
 
-@Override
-protected void onCreate(Bundle savedInstanceState)
-{
-super.onCreate(savedInstanceState);
+	@Override
+	protected void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
 
-this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-setContentView(R.layout.activity_base);
+		setContentView(R.layout.activity_base);
 
-threads = (ListView)findViewById(R.id.listView_Threads);
-button_Refresh = (Button)findViewById(R.id.button_Refresh);
+		threads = (ListView)findViewById(R.id.listView_Threads);
+		button_Refresh = (Button)findViewById(R.id.button_Refresh);
+		button_Settings = (Button)findViewById(R.id.button_Settings);
+		
 
-contacts = new ContactHandler(this);
-contacts.getContactsList(this);
-this.updateConversationLists();
+		contacts = new ContactHandler(this);
+		contacts.getContactsList(this);
+		this.updateConversationLists();
 
-threads.setOnItemClickListener(new OnItemClickListener()
-{
-public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
-{
-openMessaging(view, position);
-}
-});
+		threads.setOnItemClickListener(new OnItemClickListener()
+		{
+			public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
+			{
+				openMessaging(view, position);
+			}
+		});
 
-button_Refresh.setOnClickListener(new View.OnClickListener() 
-{
-public void onClick(View v) 
-{                
-refresh();
-}
-});
-}
+		button_Refresh.setOnClickListener(new View.OnClickListener() 
+		{
+			public void onClick(View v) 
+			{                
+				refresh();
+			}
+		});
+		
+		
+		button_Settings.setOnClickListener(new View.OnClickListener() 
+		{
+			public void onClick(View v) 
+			{                
+				goToSettings(v);
+			}
+		});
+		
+	}
 
-private void updateConversationLists()
-{	
-addresses.clear();
+	private void updateConversationLists()
+	{	
+		addresses.clear();
 
-ContentResolver cr = getContentResolver();
-Cursor c = cr.query(Message_URI, null, null, null, null);
+		ContentResolver cr = getContentResolver();
+		Cursor c = cr.query(MESSAGE_URI, null, null, null, null);
 
-List<HashMap<String,String>> hashList = new ArrayList<HashMap<String,String>>();
+		List<HashMap<String,String>> hashList = new ArrayList<HashMap<String,String>>();
 
-String[] bodies = new String[256];
-String[] names = new String[256];
-String address;
-String name;
+		String[] bodies = new String[256];
+		String[] names = new String[256];
+		String address;
+		String name;
 
-}
 
-@Override
-protected void onResume()
-{
-super.onResume();
-updateConversationLists();
-}
+		int addressIndex = c.getColumnIndex(SmsReceiverHandler.ADDRESS);
+		int bodyIndex = c.getColumnIndex(SmsReceiverHandler.BODY);
 
-public void goToSettings(View view)
-{
-//Intent intent = new Intent(this, SettingsActivity.class);
-//startActivity(intent);
-}
+		int count = 0;
+		if(!c.moveToFirst()) return;
+		do
+		{
+			address = c.getString(addressIndex);
+			address = StringUtils.removeSpecialCharacters(address);
+			if (!addresses.contains(address))
+			{
+				bodies[count] = c.getString(bodyIndex);
+				name = contacts.getName(address, this);
+				names[count++] = name;
+				addresses.add(address);
+			}
+		} while (c.moveToNext() && count < 256);
+		for(int i = 0; i < count; i++)
+		{
+			HashMap<String, String> hm = new HashMap<String,String>();
+			hm.put("name", names[i]);
+			hm.put("body", bodies[i]);
+			hashList.add(hm);
+		}
 
-// Refreshes the contact names and numbers (time consuming)
-public void refresh()
-{
-Toast.makeText(this, "Renewing contacts list...", Toast.LENGTH_LONG).show();
-contacts.getContactsList(this);
-updateConversationLists();
-}
+		String[] from = {"name", "body"};
+		int[] to = {R.id.date, R.id.body};
+		SimpleAdapter adapter = new SimpleAdapter(getBaseContext(), hashList, R.layout.contact_listview_item, from, to);
+		threads.setAdapter(adapter);
 
-// Opens the messaging screen
-public void openMessaging(View view, int position)
-{
-//Intent intent = new Intent(this, MessagingActivity.class);
+	}
 
-String address = addresses.get(position);
-String name = contacts.getName(address, this);
-//intent.putExtra("targetAddress", address);
-//intent.putExtra("targetName", name);
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		updateConversationLists();
+	}
 
-startActivity(intent);
-}
+	public void goToSettings(View view)
+	{
+		//Intent intent = new Intent(this, SettingsActivity.class);
+		//startActivity(intent);
+	}
 
-// Opens new message activity
-public void newMessage(View view)
-{
-//Intent intent = new Intent(this, NewMessageActivity.class);
-startActivity(intent);
-}
+	public void refresh()
+	{
+		Toast.makeText(this, "Renewing contacts list...", Toast.LENGTH_LONG).show();
+		contacts.getContactsList(this);
+		updateConversationLists();
+	}
+
+	public void openMessaging(View view, int position)
+	{
+		//Intent intent = new Intent(this, MessagingActivity.class);
+
+		String address = addresses.get(position);
+		String name = contacts.getName(address, this);
+		//intent.putExtra("targetAddress", address);
+		//intent.putExtra("targetName", name);
+
+		//startActivity(intent);
+	}
+
+	public void newMessage(View view)
+	{
+		//Intent intent = new Intent(this, NewMessageActivity.class);
+		//startActivity(intent);
+	}
 
 };
 
