@@ -1,4 +1,4 @@
 Secrets
 =======
 
-Encrypted messaging with android and web interface.
+Encrypted messaging with android and soon web interface.
