@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">SecretMessage</string>
-  	<string name="action_settings">Settings</string>
+    <string name="action_settings">Settings</string>
     <string name="message_box_hint">Message</string>
     <string name="phone_number_hint">Recipient Phone Number</string>
     <string name="button_send_text">Send</string>
@@ -17,15 +17,16 @@
     <string name="clear_history_title">Clear Message History</string>
     <string name="button_ChangePassword">Change password</string>
     <string name="login_password_title">Enter your password</string>
-    <string name="button_Authenticate">Go</string>
-	<string name="button_SaveSettngs">Save Settings</string>
-	<string name="button_NewMessage">New message</string>
-	<string name="button_Refresh">Refresh</string>
-	<string name="button_Settings">Settings</string>
-	<string name="changepass_title">Change Password</string>
-	<string name="changepass_prompt">Please enter your new password:</string>
-	<string name="changepass_reprompt">Once more:</string>
-	<string name="newmessage_title">New Conversation</string>
-	<string name="newmessage_prompt">Address of new recipient:</string>
+    <string name="button_Authenticate">Authenticate</string>
+    <string name="button_SaveSettngs">Save Settings</string>
+    <string name="button_NewMessage">New message</string>
+    <string name="button_Refresh">Refresh</string>
+    <string name="button_Settings">Settings</string>
+    <string name="button_Cancel">Cancel</string>
+    <string name="changepass_title">Change Password</string>
+    <string name="changepass_prompt">Please enter your new password:</string>
+    <string name="changepass_reprompt">Once more:</string>
+    <string name="newmessage_title">New Conversation</string>
+    <string name="newmessage_prompt">Address of new recipient:</string>
 
 </resources>

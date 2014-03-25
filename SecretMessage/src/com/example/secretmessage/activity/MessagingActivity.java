@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.Locale;
 
 import com.example.secretmessage.R;
+import com.example.secretmessage.handler.ContactHandler;
 import com.example.secretmessage.handler.DatabaseHandler;
 import com.example.secretmessage.handler.EncryptionHandler;
 import com.example.secretmessage.handler.SmsReceiverHandler;
+import com.example.secretmessage.message.Message;
 import com.example.secretmessage.pojo.Contact;
 import com.example.secretmessage.utils.CryptoUtil;
 import com.example.secretmessage.utils.StringUtils;
@@ -29,6 +31,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
@@ -48,16 +51,17 @@ public class MessagingActivity extends Activity
 	EncryptionHandler encrypt;
 
 	Button button_SendMessage;
-	EditText text_PhoneNumber;
-	EditText text_Message;
+	EditText text_name_number;
+	EditText text_message;
 	ListView messages;
 
 	String history = "";
 	SimpleAdapter adapter;
 	List<HashMap<String, String>> hashList;
-	//ContactManager myContacts = new ContactManager(this);
+	ContactHandler contacts = new ContactHandler(this);
 
-	static final String PREFS_NAME = "preferences";	
+	static final String PREFS_NAME = MainActivity.PREFS_NAME;	
+	static final String AUTH = MainActivity.AUTH;
 	Uri SMS_URI = Uri.parse("content://sms/inbox");
 
 	SharedPreferences prefs;
@@ -66,65 +70,75 @@ public class MessagingActivity extends Activity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-
-		prefs = getSharedPreferences("preferences", 0);
-		encrypt = EncryptionHandler.getInstance(prefs.getString("auth", null));
-
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
+		prefs = getSharedPreferences(PREFS_NAME, 0);
+		encrypt = EncryptionHandler.getInstance(prefs.getString(AUTH, null));
+		/* TODO Handle handshake here if not stored */ 
 		setContentView(R.layout.activity_messaging);
-		db = new DatabaseHandler(this).getWritableDatabase();
-
+		DatabaseHandler dbHandler = new DatabaseHandler(this);
+		db = dbHandler.getWritableDatabase();
+		/* Get the intent that alunched the messaging activity to get args */
 		Intent intent = getIntent();
-		final String recipient = intent.getStringExtra("targetAddress");
-		String recipientName = intent.getStringExtra("targetName");
-
+		final String recipient = intent.getStringExtra(BaseActivity.reciepientAddress);
+		String recipientName = intent.getStringExtra(BaseActivity.reciepientName);
+		Log.d(TAG, "Recipient " + recipient + " Name " + recipientName);
 		button_SendMessage = (Button)findViewById(R.id.button_SendMessage);
-		text_PhoneNumber = (EditText)findViewById(R.id.text_PhoneNumber);
-		text_Message = (EditText)findViewById(R.id.text_Message);
-		messages = (ListView)findViewById(R.id.listView_MessageHistory);
+		text_name_number = (EditText)findViewById(R.id.text_name_number);
+		text_message = (EditText)findViewById(R.id.text_message);
 
+		messages = (ListView)findViewById(R.id.listView_MessageHistory);
 		messages.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 		messages.setStackFromBottom(true);
 
 		updateMessageHistory(recipient);
-
 		String[] from = {"date", "body"};
 		int[] to = {R.id.history_date, R.id.history_body};
 		adapter = new SimpleAdapter(getBaseContext(), hashList, R.layout.listview_history, from, to);
 		messages.setAdapter(adapter);
 		adapter.notifyDataSetChanged();
 
-		text_PhoneNumber.setText("<" + recipientName + ">" + "[" + recipient + "]");
+		text_name_number.setText(recipientName + " [" + recipient + "] ");
 
 		button_SendMessage.setOnClickListener(new View.OnClickListener() 
 		{
 
 			public void onClick(View v) 
 			{                
-				String message = text_Message.getText().toString();    
+				String message = text_message.getText().toString();    
 				if (recipient.length() > 0 && message.length() > 0)
 				{
-					sendMessage(recipient, message);                
+					sendMessage(recipient, message); //Have complete message, send it             
 				}
-				else			// Display error message; there was an empty field
+				else
 				{
 					Toast.makeText(getBaseContext(), "Either the phone number or message field was left blank.", Toast.LENGTH_SHORT).show();
 				}
 
-				text_Message.setText("");
+				text_message.setText("");
 			}
 		});        
 	}
 
-	void addContact(Contact contact) {	
+	private void sendMessage(String targetNumber, String targetMessage)
+	{
+		SmsManager messageManager = SmsManager.getDefault();
+		messageManager.sendTextMessage(targetNumber, null, targetMessage, null, null);
+		/* Add the sent message to history; */
+		ContentValues v = new ContentValues();
+		v.put(SmsReceiverHandler.ADDRESS, targetNumber);
+		v.put(SmsReceiverHandler.BODY, targetMessage); 
+		getApplicationContext().getContentResolver().insert(Uri.parse("content://sms/sent"), v);
+		/* Go to inbox after sending */
+		openBaseActivity();
+	}
 
+
+	void addContact(Contact contact) {	
 		ContentValues values = new ContentValues();
-		values.put(DatabaseHandler.KEY_NAME, contact.getName()); //Contact Name
-		values.put(DatabaseHandler.KEY_PH_NO, contact.getPhoneNumber()); //Contact phone
+		values.put(DatabaseHandler.KEY_NAME, contact.getName());
+		values.put(DatabaseHandler.KEY_PH_NO, contact.getPhoneNumber());
 		values.put(DatabaseHandler.KEY_MSG, contact.getMessage());
 		db.insert(DatabaseHandler.TABLE_CONTACTS, null, values);
-
 	}
 
 	@Override
@@ -136,28 +150,14 @@ public class MessagingActivity extends Activity
 		updateMessageHistory(recipient);
 	}
 
-	private void sendMessage(String targetNumber, String targetMessage)
-	{
-		/* Create intent to be exec after sending message, sends us back to 
-		 * baseActivity  
-		 */
-		SmsManager messageManager = SmsManager.getDefault();
-		messageManager.sendTextMessage(targetNumber, null, targetMessage, null, null);
 
-		// Commit message to sent
-		ContentValues v = new ContentValues();
-		v.put(SmsReceiverHandler.ADDRESS, targetNumber);
-		v.put(SmsReceiverHandler.BODY, targetMessage); 
-		getApplicationContext().getContentResolver().insert(Uri.parse("content://sms/sent"), v);
-	}
-
-	public void openSettingsView(View view)
+	public void openSettingsView()
 	{
 		Intent intent = new Intent(this, SettingsActivity.class);
 		startActivity(intent);
 	}
 
-	public void openBaseActivity(View view)
+	public void openBaseActivity()
 	{
 		Intent intent = new Intent(this, BaseActivity.class);
 		startActivity(intent);
@@ -302,9 +302,10 @@ public class MessagingActivity extends Activity
 		}
 	}
 
-	   @Override
-	   public void onPause() {
-	  	db.close(); // Closing database connection
-	  }   
+	@Override
+	public void onPause() {
+		super.onPause();
+		db.close(); // Closing database connection
+	}   
 
 };

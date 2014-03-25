@@ -8,8 +8,10 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Interpolator.Result;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -26,7 +28,6 @@ import com.example.secretmessage.utils.StringUtils;
 
 public class BaseActivity extends Activity {
 	static final String TAG = BaseActivity.class.getSimpleName();
-
 	Uri MESSAGE_URI = Uri.parse("content://sms/inbox");
 	ContactHandler contacts;
 	List<String> addresses = new ArrayList<String>();
@@ -65,11 +66,12 @@ public class BaseActivity extends Activity {
 		{
 			public void onClick(View v) 
 			{                
+				Log.d(TAG, "Refreshing");
 				refresh();
 			}
 		});
-		
-		
+
+
 		button_Settings.setOnClickListener(new View.OnClickListener() 
 		{
 			public void onClick(View v) 
@@ -77,7 +79,7 @@ public class BaseActivity extends Activity {
 				goToSettings(v);
 			}
 		});
-		
+
 		button_NewMessage.setOnClickListener(new View.OnClickListener()
 		{
 			public void onClick(View v) 
@@ -85,11 +87,12 @@ public class BaseActivity extends Activity {
 				newMessage(v);
 			}
 		});
-		
+
 	}
 
 	private void updateConversationLists()
 	{	
+		Log.d(TAG, "Updating conversation lists.");
 		addresses.clear();
 
 		ContentResolver cr = getContentResolver();
@@ -119,7 +122,7 @@ public class BaseActivity extends Activity {
 				names[count++] = name;
 				addresses.add(address);
 			}
-		} while (c.moveToNext() && count < 256);
+		} while (c.moveToNext() && count < 300);
 		for(int i = 0; i < count; i++)
 		{
 			HashMap<String, String> hm = new HashMap<String,String>();
@@ -155,21 +158,47 @@ public class BaseActivity extends Activity {
 		updateConversationLists();
 	}
 
+	static final String reciepientAddress = "recipientAddress";
+	static final String reciepientName = "recipientName";
 	public void openMessaging(View view, int position)
 	{
-		Intent intent = new Intent(this, MessagingActivity.class);
 		String address = addresses.get(position);
+		openMessaging(address);
+	}
+	
+	public void openMessaging(String messageAddress)
+	{
+		Intent intent = new Intent(this, MessagingActivity.class);
+		String address = messageAddress;
 		String name = contacts.getName(address, this);
-		intent.putExtra("targetAddress", address);
-		intent.putExtra("targetName", name);
-
+		Log.d(TAG, "Opening messaging with " + address + name);
+		intent.putExtra(reciepientAddress, address);
+		intent.putExtra(reciepientName, name);
 		startActivity(intent);
 	}
 
+	static final int newMessage = 1;
 	public void newMessage(View view)
 	{
 		Intent intent = new Intent(this, NewMessageActivity.class);
-		startActivity(intent);
+		startActivityForResult(intent, newMessage);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// Check which request we're responding to
+		if (requestCode == newMessage) {
+			switch(resultCode)
+			{
+			case RESULT_OK:
+				Log.d(TAG, "Got a result from new message");
+				openMessaging(data.getStringExtra(NewMessageActivity.newMessagingResult));
+				break;
+			case RESULT_CANCELED:
+				Log.d(TAG, "User cancelled new message");
+				break;
+			}
+		}
 	}
 
 };

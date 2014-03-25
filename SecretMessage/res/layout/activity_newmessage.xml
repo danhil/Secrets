@@ -41,14 +41,22 @@
     </EditText>
 
     <Button
-        android:id="@+id/button_newmessage_send"
-        android:onClick="sendNewMessage"
+        android:id="@+id/button_auth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignRight="@+id/edittext_newmessage_recipient"
         android:layout_below="@+id/edittext_newmessage_recipient"
         android:layout_marginTop="20dp"
         android:text="@string/button_Authenticate"
+        ></Button>
+     <Button
+        android:id="@+id/button_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/edittext_newmessage_recipient"
+        android:layout_below="@+id/button_auth"
+        android:layout_marginTop="20dp"
+        android:text="@string/button_Cancel"
         ></Button>
 
 </RelativeLayout>

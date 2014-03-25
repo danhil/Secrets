@@ -59,11 +59,11 @@ public class EncryptionHandler
 		} catch (Exception e) { return null; }
 	}
 	
-	public byte[] bProducePublicKeyAndSecretKey(byte[] alicePublicKeyBytes, String recipient, String Password)
+	public byte[] bProducePublicKeyAndSecretKey(byte[] aPublicKeyBytes, String recipient, String Password)
 	{
 		try {
 			KeyFactory keyFactory = KeyFactory.getInstance("DH");
-			X509EncodedKeySpec keySpec = new X509EncodedKeySpec(alicePublicKeyBytes);
+			X509EncodedKeySpec keySpec = new X509EncodedKeySpec(aPublicKeyBytes);
 			PublicKey alicePublicKey = keyFactory.generatePublic(keySpec);
 			DHParameterSpec spec = ((DHPublicKey)alicePublicKey).getParams();
 			KeyPairGenerator pairGen = KeyPairGenerator.getInstance("DH");
@@ -77,11 +77,11 @@ public class EncryptionHandler
 		} catch (Exception e) { return null; }
 	}
 	
-	public boolean aProduceSecretKey(byte[] bobPublicKeyBytes, String recipient, String Password)
+	public boolean aProduceSecretKey(byte[] bPublicKeyBytes, String recipient, String Password)
 	{
 		try {
 			KeyFactory keyFactory = KeyFactory.getInstance("DH");
-			X509EncodedKeySpec spec = new X509EncodedKeySpec(bobPublicKeyBytes);
+			X509EncodedKeySpec spec = new X509EncodedKeySpec(bPublicKeyBytes);
 			PublicKey bobPublicKey = keyFactory.generatePublic(spec);
 			agreeMap.get(recipient).doPhase(bobPublicKey, true);
 			setKey(recipient, new SecretKeySpec(agreeMap.get(recipient).generateSecret(), "AES"), Password);
