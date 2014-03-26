@@ -16,6 +16,7 @@ import java.security.spec.*;
 import javax.crypto.spec.*;
 import java.util.Random;
 import java.security.*;
+
 import javax.crypto.*;
 
 import java.io.*;
@@ -116,7 +117,7 @@ public class EncryptionHandler
 	{
 		FileInputStream fis = null;
 		try {
-			keyStore = KeyStore.getInstance("JCEKS");
+			keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 			fis = new java.io.FileInputStream("KeyStore");
 			keyStore.load(fis, Password.toCharArray());
 		} catch (FileNotFoundException e) { try { keyStore.load(null, Password.toCharArray()); return true; } catch (Exception f) { return false;} }

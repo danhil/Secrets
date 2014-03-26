@@ -7,6 +7,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import android.util.Base64;
+import android.util.Log;
 
 public class CryptoUtil
 {
@@ -21,6 +22,7 @@ public class CryptoUtil
 	// Encrypts a string using 128-bit AES encryption
 	public static String encrypt(String data, String key) throws Exception
 	{
+		Log.i(TAG, "Data " + data);
 		byte[] myKey = generateKey(key.getBytes());
 		byte[] dataCopy = data.getBytes();
 		

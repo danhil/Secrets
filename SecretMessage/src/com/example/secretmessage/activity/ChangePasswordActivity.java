@@ -50,7 +50,7 @@ public class ChangePasswordActivity extends Activity {
 			// Create preferences editor to store new pin
             SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
             SharedPreferences.Editor editor = settings.edit();
-            editor.putString("auth", firstPass);
+            editor.putString(MainActivity.AUTH, firstPass);
 
             // Commit our changes
             editor.commit();

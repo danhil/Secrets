@@ -14,7 +14,6 @@ import com.example.secretmessage.handler.ContactHandler;
 import com.example.secretmessage.handler.DatabaseHandler;
 import com.example.secretmessage.handler.EncryptionHandler;
 import com.example.secretmessage.handler.SmsReceiverHandler;
-import com.example.secretmessage.message.Message;
 import com.example.secretmessage.pojo.Contact;
 import com.example.secretmessage.utils.CryptoUtil;
 import com.example.secretmessage.utils.StringUtils;
@@ -59,21 +58,19 @@ public class MessagingActivity extends Activity
 	SimpleAdapter adapter;
 	List<HashMap<String, String>> hashList;
 	ContactHandler contacts = new ContactHandler(this);
-
-	static final String PREFS_NAME = MainActivity.PREFS_NAME;	
-	static final String AUTH = MainActivity.AUTH;
-	Uri SMS_URI = Uri.parse("content://sms/inbox");
+	Uri SMS_INBOX_URI = Uri.parse("content://sms/inbox");
+	Uri SMS_OUTBOX_URI = Uri.parse("content://sms/sent");
 
 	SharedPreferences prefs;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		Log.d(TAG,"In the oncreate in messageact");
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		prefs = getSharedPreferences(PREFS_NAME, 0);
-		encrypt = EncryptionHandler.getInstance(prefs.getString(AUTH, null));
-		/* TODO Handle handshake here if not stored */ 
+		prefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
+		encrypt = EncryptionHandler.getInstance(prefs.getString(MainActivity.AUTH, null));
 		setContentView(R.layout.activity_messaging);
 		DatabaseHandler dbHandler = new DatabaseHandler(this);
 		db = dbHandler.getWritableDatabase();
@@ -127,9 +124,7 @@ public class MessagingActivity extends Activity
 		ContentValues v = new ContentValues();
 		v.put(SmsReceiverHandler.ADDRESS, targetNumber);
 		v.put(SmsReceiverHandler.BODY, targetMessage); 
-		getApplicationContext().getContentResolver().insert(Uri.parse("content://sms/sent"), v);
-		/* Go to inbox after sending */
-		openBaseActivity();
+		getApplicationContext().getContentResolver().insert(SMS_OUTBOX_URI, v);
 	}
 
 
@@ -146,8 +141,15 @@ public class MessagingActivity extends Activity
 	{
 		super.onResume();
 		Intent intent = getIntent();
-		String recipient = intent.getStringExtra("targetAddress");
+		String recipient = intent.getStringExtra(BaseActivity.reciepientAddress);
 		updateMessageHistory(recipient);
+		
+		SharedPreferences settings = getSharedPreferences(MainActivity.PREFS_NAME, 0);
+		String stored = settings.getString(MainActivity.AUTH, "");
+		if(encrypt.getKey(recipient,stored) == null)
+			/*TODO handshake */
+			Log.d(TAG, "Should do handshake");
+			
 	}
 
 
@@ -171,7 +173,7 @@ public class MessagingActivity extends Activity
 		String[] bodies = new String[256];
 		int count = 0;
 		ContentResolver cr = getContentResolver();
-		Cursor c = cr.query(SMS_URI, null, null, null, null);
+		Cursor c = cr.query(SMS_INBOX_URI, null, null, null, null);
 		int addressIndex = c.getColumnIndex(SmsReceiverHandler.ADDRESS);
 		int bodyIndex = c.getColumnIndex(SmsReceiverHandler.BODY);
 		int dateIndex = c.getColumnIndex(SmsReceiverHandler.DATE);
@@ -193,18 +195,22 @@ public class MessagingActivity extends Activity
 					dates[count] = c.getLong(dateIndex);				
 					bodies[count] = c.getString(bodyIndex);
 					try {
-						bodies[count++] = CryptoUtil.encrypt(bodies[count], "pass");
+						/* This is the message text from the other part */
+						String messageData = bodies[count];
+						Log.i(TAG, "Data " + messageData);
+						
+						bodies[count++] = CryptoUtil.encrypt(messageData, "pass");
 					} catch (Exception e) {
 						e.printStackTrace();
 						Toast.makeText(getBaseContext(), "Not working", Toast.LENGTH_LONG).show();
 					}
 				}
-			} while (c.moveToNext() && count < 256);
+			} while (c.moveToNext() && count < 100);
 		}
 
 		c.close();
 
-		Cursor cc = cr.query(Uri.parse("content://sms/sent"), null, null, null, null);
+		Cursor cc = cr.query(SMS_OUTBOX_URI, null, null, null, null);
 		addressIndex = cc.getColumnIndex(SmsReceiverHandler.ADDRESS);
 		bodyIndex = cc.getColumnIndex(SmsReceiverHandler.BODY);
 		dateIndex = cc.getColumnIndex(SmsReceiverHandler.DATE);

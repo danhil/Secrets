@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.secretmessage.pojo.Contact;
+import com.example.secretmessage.pojo.HandshakeStatus;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -53,6 +54,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		db.insert(TABLE_CONTACTS, null, values);
 		db.close();	
 	}
+	
 	
 	Contact getContact(int id) {
 		SQLiteDatabase db = this.getReadableDatabase();
