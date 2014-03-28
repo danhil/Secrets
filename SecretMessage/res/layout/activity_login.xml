@@ -87,8 +87,9 @@
         android:id="@+id/image_LoginLogo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/text_LoginPasswordPrompt"
         android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_above="@+id/text_LoginPasswordPrompt"
         android:layout_marginBottom="40dp"
         android:src="@drawable/ic_launcher" />
 

@@ -16,20 +16,19 @@ public class Message
 	public boolean isHandshake = false;
 	public String recipient;
 	
-	public Message(String Text, String password, String Recipient)
+	public Message(String Text, EncryptionHandler encrypt, String Recipient)
 	{
 		text = Text;
-		encrypt = EncryptionHandler.getInstance(password);
+		this.encrypt = encrypt;
 		isHandshake = false;
 		recipient = Recipient;
 		saltIndex = new int[1];
 	}
 	
-	public Message(char HeaderValue, byte[] Key, String Password, String Recipient)
+	public Message(char HeaderValue, byte[] Key, String Recipient)
 	{
 		headerValue = HeaderValue;
 		key = Key;
-		encrypt = EncryptionHandler.getInstance(Password);
 		recipient = Recipient;
 		isHandshake = true;
 		saltIndex = new int[1];

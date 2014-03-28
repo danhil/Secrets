@@ -20,11 +20,27 @@
         android:hint="@string/phone_number_hint"
         android:inputType="phone"
         android:minHeight="20dp"
-        android:padding="5dp"
-        >
+        android:padding="5dp" >
 
         <requestFocus />
     </EditText>
+
+    <TextView
+        android:id="@+id/text_hs_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/text_name_number"
+        android:background="#ff0000"
+        android:ems="10"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:gravity="center"
+        android:minHeight="20dp"
+        android:padding="5dp"
+        android:text="@string/not_encrypted"
+        android:visibility="gone" >
+    </TextView>
 
     <LinearLayout
         android:id="@+id/rule_2"
@@ -33,17 +49,15 @@
         android:layout_above="@+id/box_MessageSend"
         android:layout_centerHorizontal="true"
         android:orientation="vertical" >
-
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/rule_1"
         android:layout_width="match_parent"
         android:layout_height="1px"
-        android:layout_below="@+id/text_PhoneNumber"
+        android:layout_below="@+id/text_hs_status"
         android:layout_centerHorizontal="true"
         android:orientation="vertical" >
-
     </LinearLayout>
 
     <ListView
@@ -53,9 +67,8 @@
         android:layout_above="@+id/rule_2"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/rule_1"
-        android:transcriptMode="normal"
-        android:stackFromBottom="true">
-
+        android:stackFromBottom="true"
+        android:transcriptMode="normal" >
     </ListView>
 
     <LinearLayout
@@ -74,16 +87,21 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:ems="10"
-            android:inputType="textMultiLine"
-    />
+            android:inputType="textMultiLine" />
+
+        <Button
+            android:id="@+id/button_startHandshake"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/button_start_handshake"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/button_SendMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/button_send_text"/>
-
+            android:text="@string/button_send_text" />
     </LinearLayout>
 
 </RelativeLayout>

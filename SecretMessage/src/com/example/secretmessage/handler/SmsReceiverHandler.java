@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
+import android.util.Log;
 
 public class SmsReceiverHandler extends BroadcastReceiver
 {
@@ -34,6 +35,7 @@ public class SmsReceiverHandler extends BroadcastReceiver
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
+		Log.i(TAG, "Recieved message");
 		Bundle bundle = intent.getExtras();
 
 		if (bundle != null)
@@ -43,11 +45,22 @@ public class SmsReceiverHandler extends BroadcastReceiver
 			{
 				/* convert the message from bytes */
 				SmsMessage thisMessage = SmsMessage.createFromPdu((byte[])pdus[i]);
-				commitMessage(context, thisMessage);
+				handleMessageType(context, thisMessage);
+				
 			}
 		}
 	}
 	
+	private void handleMessageType(Context context, SmsMessage thisMessage) {
+		String smsinfo = thisMessage.getMessageBody();
+		if(smsinfo.startsWith("28i")){
+			/*TOO ahdnle encryption */
+		}
+			
+		commitMessage(context, thisMessage);	
+		
+	}
+
 	private void commitMessage(Context context, SmsMessage message)
 	{
 		ContentValues v = new ContentValues();

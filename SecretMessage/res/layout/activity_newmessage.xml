@@ -7,16 +7,6 @@
     tools:context=".NewMessageActivity">
 
     <TextView
-        android:id="@+id/text_newmessage_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:text="@string/newmessage_title"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        />
-
-    <TextView
         android:id="@+id/text_newmessage_prompt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,8 +20,9 @@
         android:id="@+id/edittext_newmessage_recipient"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/text_newmessage_prompt"
-        android:layout_below="@+id/text_newmessage_prompt"
+        
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:layout_marginTop="20dp"
         android:ems="10"
         android:inputType="phone"
@@ -39,6 +30,17 @@
 
         <requestFocus />
     </EditText>
+    
+    
+    <TextView
+        android:id="@+id/text_newmessage_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/edittext_newmessage_recipient"
+        android:layout_alignLeft="@id/edittext_newmessage_recipient"
+        android:text="@string/newmessage_title"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+    
 
     <Button
         android:id="@+id/button_auth"

@@ -22,6 +22,8 @@
     <string name="button_NewMessage">New message</string>
     <string name="button_Refresh">Refresh</string>
     <string name="button_Settings">Settings</string>
+    <string name="button_start_handshake">Init crypto</string>
+    <string name="not_encrypted">Not encrypted.</string>
     <string name="button_Cancel">Cancel</string>
     <string name="changepass_title">Change Password</string>
     <string name="changepass_prompt">Please enter your new password:</string>

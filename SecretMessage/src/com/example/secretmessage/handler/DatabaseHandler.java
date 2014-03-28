@@ -11,17 +11,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 	static final String TAG = DatabaseHandler.class.getSimpleName();
 
 	private static final int DATABASE_VERSION = 1090;
-	private static final String DATABASE_NAME = "contactsManagerNew.db";
+	private static final String DATABASE_NAME = "contactsManager.db";
 	public static final String TABLE_CONTACTS = "contacts";
-	public static final String KEY_ID = "id";
-	public static final String KEY_NAME = "name";
 	public static final String KEY_PH_NO = "phone_number";
-	public static final String KEY_MSG = "Message";
+	public static final String KEY_HSSTATUS = "hs_status";
 		
 	public DatabaseHandler(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);		
@@ -30,10 +29,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	
 	public void onCreate(SQLiteDatabase db) {		
 		String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_CONTACTS + "("
-				+ KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT,"
-				+ KEY_PH_NO + " TEXT," + KEY_MSG + " VARCHAR " +")";
+				+ KEY_PH_NO + " TEXT PRIMARY KEY," + KEY_HSSTATUS + " VARCHAR "+ ")";
 		db.execSQL(CREATE_CONTACTS_TABLE);
 	}
+	
 		
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -44,28 +43,59 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	// All Create, Update, Delete Operations
 	
 	void addContact(Contact contact) {
+		Log.d(TAG, "Writing " + contact.getPhoneNumber() 
+				+ contact.getHsStatus() + "to database");
 		SQLiteDatabase db = this.getWritableDatabase();
-		
 		ContentValues values = new ContentValues();
-		values.put(KEY_NAME, contact.getName());
 		values.put(KEY_PH_NO, contact.getPhoneNumber());
-		values.put(KEY_MSG, contact.getMessage());
-		
+		values.put(KEY_HSSTATUS, contact.getHsStatus().getValue());
 		db.insert(TABLE_CONTACTS, null, values);
 		db.close();	
 	}
 	
+	public int updateHsStatus(String phoneNbr, HandshakeStatus status)
+	{
+		SQLiteDatabase db = this.getWritableDatabase();
+		ContentValues cv = new ContentValues();
+		cv.put(KEY_HSSTATUS, status.getValue());
+		int affectedRows = db.update(TABLE_CONTACTS, cv, KEY_PH_NO+"="+phoneNbr, null);
+		return affectedRows;
+	}
 	
-	Contact getContact(int id) {
+	public HandshakeStatus getHSStatus(String phoneNbr)
+	{
+		Log.d(TAG, "Getting hs status for " + phoneNbr);
+		SQLiteDatabase db = this.getWritableDatabase();
+		String[] selectionArgs = new String[]{KEY_PH_NO, phoneNbr};
+		Cursor cursor = db.query(TABLE_CONTACTS, 
+				new String[]{KEY_HSSTATUS} ,KEY_PH_NO+"="+phoneNbr,
+				null, null, null, null);
+		String hsStatus = "";
+		if(cursor.getCount() > 1)
+			Log.e(TAG, "The cursor returned more than one hit...");
+		if(cursor.moveToFirst()){
+			hsStatus = cursor.getString(0);
+		} else
+		{
+			addContact(new Contact(phoneNbr));
+			// Redo the query to find the inserted contact.
+			return getHSStatus(phoneNbr);
+		}
+		Log.d(TAG, "returning " + hsStatus);
+		return HandshakeStatus.getStatus(hsStatus);
+	}
+	
+	
+	Contact getContact(String id) {
 		SQLiteDatabase db = this.getReadableDatabase();
 		
-		Cursor cursor = db.query(TABLE_CONTACTS, new String[] { KEY_ID, KEY_NAME, KEY_PH_NO, KEY_MSG }, KEY_ID + "=?",
-				new String[] { String.valueOf(id) }, null, null, null,null);
+		Cursor cursor = db.query(TABLE_CONTACTS, new String[] {KEY_PH_NO, KEY_HSSTATUS}, KEY_PH_NO + "=?",
+				new String[] { id }, null, null, null,null);
 		if(cursor !=null)
 			cursor.moveToFirst();
 		
-		Contact contact = new Contact(Integer.parseInt(cursor.getString(0)),
-				cursor.getString(1), cursor.getString(2), cursor.getString(3));
+		Contact contact = new Contact(cursor.getString(0),
+				cursor.getString(1));
 		return contact;
 	}
 	
@@ -77,11 +107,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		Cursor cursor = db.rawQuery(selectQuery, null);
 		if (cursor.moveToFirst()) {
 			do {
-				Contact contact = new Contact();
-				contact.setID(Integer.parseInt(cursor.getString(0)));
-				contact.setName(cursor.getString(1));
-				contact.setPhoneNumber(cursor.getString(2));
-				contact.setMessage(cursor.getString(3));
+				Contact contact = new Contact(cursor.getString(0), cursor.getString(1) );
 				contactList.add(contact);
 			} while (cursor.moveToNext());			
 		}

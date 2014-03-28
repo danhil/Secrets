@@ -19,23 +19,26 @@ import java.security.*;
 
 import javax.crypto.*;
 
+import android.util.Log;
+
 import java.io.*;
 
 
 public class EncryptionHandler
 {	
+	static String TAG = EncryptionHandler.class.getSimpleName();
 	public KeyStore keyStore = null;
 	public static byte[] passHash;
 	public static HashMap<String, KeyAgreement> agreeMap = null;
 	private static EncryptionHandler instance = null;
-	
+
 	public static EncryptionHandler getInstance(String Password)
 	{
 		if (instance == null)
 			instance = new EncryptionHandler(Password);
 		return instance;
 	}
-	
+
 	private EncryptionHandler(String Password)
 	{
 		loadKeyStore(Password);
@@ -43,7 +46,7 @@ public class EncryptionHandler
 		if (agreeMap == null)
 			agreeMap = new HashMap<String, KeyAgreement>();
 	}
-	
+
 	public byte[] aProducePublicKey(String recipient)
 	{
 		try {
@@ -59,7 +62,7 @@ public class EncryptionHandler
 			return keyPair.getPublic().getEncoded();
 		} catch (Exception e) { return null; }
 	}
-	
+
 	public byte[] bProducePublicKeyAndSecretKey(byte[] aPublicKeyBytes, String recipient, String Password)
 	{
 		try {
@@ -68,16 +71,16 @@ public class EncryptionHandler
 			PublicKey alicePublicKey = keyFactory.generatePublic(keySpec);
 			DHParameterSpec spec = ((DHPublicKey)alicePublicKey).getParams();
 			KeyPairGenerator pairGen = KeyPairGenerator.getInstance("DH");
-	        pairGen.initialize(spec);
-	        KeyPair keyPair = pairGen.generateKeyPair();
-	        KeyAgreement keyAgree = KeyAgreement.getInstance("DH");
-	        keyAgree.init(keyPair.getPrivate());
-	        keyAgree.doPhase(alicePublicKey, true);
-	        setKey(recipient, new SecretKeySpec(keyAgree.generateSecret(), "AES"), Password);
-	        return keyPair.getPublic().getEncoded();
+			pairGen.initialize(spec);
+			KeyPair keyPair = pairGen.generateKeyPair();
+			KeyAgreement keyAgree = KeyAgreement.getInstance("DH");
+			keyAgree.init(keyPair.getPrivate());
+			keyAgree.doPhase(alicePublicKey, true);
+			setKey(recipient, new SecretKeySpec(keyAgree.generateSecret(), "AES"), Password);
+			return keyPair.getPublic().getEncoded();
 		} catch (Exception e) { return null; }
 	}
-	
+
 	public boolean aProduceSecretKey(byte[] bPublicKeyBytes, String recipient, String Password)
 	{
 		try {
@@ -90,7 +93,7 @@ public class EncryptionHandler
 			return true;
 		} catch (Exception e) { return false; }
 	}
-	
+
 	public byte[] encrypt(byte[] plainText, String recipient, int[] saltIndex, String Password)
 	{
 		try {
@@ -102,7 +105,7 @@ public class EncryptionHandler
 			return cipher.doFinal(plainText);
 		} catch (Exception e) { return null; }
 	}
-	
+
 	public String decrypt(byte[] cipherText, String recipient, int saltIndex, String Password)
 	{
 		try {
@@ -112,7 +115,7 @@ public class EncryptionHandler
 			return new String(cipher.doFinal(cipherText), "UTF8");
 		} catch (Exception e) { return null; }
 	}
-	
+
 	public boolean loadKeyStore(String Password)
 	{
 		FileInputStream fis = null;
@@ -121,30 +124,34 @@ public class EncryptionHandler
 			fis = new java.io.FileInputStream("KeyStore");
 			keyStore.load(fis, Password.toCharArray());
 		} catch (FileNotFoundException e) { try { keyStore.load(null, Password.toCharArray()); return true; } catch (Exception f) { return false;} }
-		  catch (Exception f) { System.out.println(f.getMessage()); return false;}
-		  finally { if (fis != null) try { fis.close(); } catch (Exception e) {} }
+		catch (Exception f) { System.out.println(f.getMessage()); return false;}
+		finally { if (fis != null) try { fis.close(); } catch (Exception e) {} }
 		return true;
 	}
-	
+
 	public void saveKeyStore(String Password)
 	{
 		if (keyStore == null)
 			return;
 		FileOutputStream fos = null;
-	    try {
-	        fos = new java.io.FileOutputStream("KeyStore");
-	        keyStore.store(fos, Password.toCharArray());
-	    } catch (Exception e) {}
-	      finally { if (fos != null) try { fos.close(); } catch (Exception e) {} }
+		try {
+			fos = new java.io.FileOutputStream("KeyStore");
+			keyStore.store(fos, Password.toCharArray());
+		} catch (Exception e) {}
+		finally { if (fos != null) try { fos.close(); } catch (Exception e) {} }
 	}
-	
+
 	public SecretKey getKey(String alias, String Password)
 	{
 		try {
 			return ((KeyStore.SecretKeyEntry) keyStore.getEntry(alias, new KeyStore.PasswordProtection(Password.toCharArray()))).getSecretKey();
-		} catch (Exception e) { System.out.println(e.getMessage()); return null; }
+		}
+		catch (Exception e){
+			Log.e(TAG, e.toString()); 
+			return null;
+		}
 	}
-	
+
 	public boolean setKey(String alias, SecretKey key, String Password)
 	{
 		try {
@@ -152,7 +159,7 @@ public class EncryptionHandler
 		} catch (Exception e) { System.out.println(e.getMessage()); return false; }
 		return true;
 	}
-	
+
 	public static boolean loadPassword()
 	{
 		try {
@@ -163,7 +170,7 @@ public class EncryptionHandler
 		} catch (Exception e) { return false; }
 		return true;
 	}
-	
+
 	public static boolean savePassword(String Password)
 	{
 		try {
@@ -178,7 +185,7 @@ public class EncryptionHandler
 		} catch (Exception e) { return false; }
 		return true;
 	}
-	
+
 	public static boolean isPassword(String pass)
 	{
 		try {
@@ -189,7 +196,7 @@ public class EncryptionHandler
 			return equals(passEnc, passHash);
 		} catch (Exception e) { return false; }
 	}
-	
+
 	public static boolean equals(byte[] a, byte[] b)
 	{
 		if (a.length != b.length)
@@ -199,27 +206,27 @@ public class EncryptionHandler
 				return false;
 		return true;
 	}	
-	
-    private static void byte2hex(byte b, StringBuffer buf)
-    {
-        char[] hexChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-        int high = ((b & 0xf0) >> 4);
-        int low = (b & 0x0f);
-        buf.append(hexChars[high]);
-        buf.append(hexChars[low]);
-    }
-    
-    private static String toHexString(byte[] block)
-    {
-        StringBuffer buf = new StringBuffer();
-        int len = block.length;
-        for (int i = 0; i < len; i++)
-        {
-             byte2hex(block[i], buf);
-             if (i < len-1) {
-                 buf.append(":");
-             }
-        } 
-        return buf.toString();
-    }
+
+	private static void byte2hex(byte b, StringBuffer buf)
+	{
+		char[] hexChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+		int high = ((b & 0xf0) >> 4);
+		int low = (b & 0x0f);
+		buf.append(hexChars[high]);
+		buf.append(hexChars[low]);
+	}
+
+	private static String toHexString(byte[] block)
+	{
+		StringBuffer buf = new StringBuffer();
+		int len = block.length;
+		for (int i = 0; i < len; i++)
+		{
+			byte2hex(block[i], buf);
+			if (i < len-1) {
+				buf.append(":");
+			}
+		} 
+		return buf.toString();
+	}
 }

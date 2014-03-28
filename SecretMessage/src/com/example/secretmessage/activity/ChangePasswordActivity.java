@@ -2,6 +2,7 @@ package com.example.secretmessage.activity;
 import com.example.secretmessage.R;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -58,7 +59,13 @@ public class ChangePasswordActivity extends Activity {
             changePass.setText("");
 			changePassAgain.setText("");
             Toast.makeText(this, "Password succesfully changed.", Toast.LENGTH_LONG).show();
+            goToBaseActivity();
 		}
+	}
+
+	private void goToBaseActivity() {
+		Intent intent = new Intent(this, BaseActivity.class);
+		startActivity(intent);		
 	}
 	
 };

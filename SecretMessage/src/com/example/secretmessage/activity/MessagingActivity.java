@@ -14,7 +14,9 @@ import com.example.secretmessage.handler.ContactHandler;
 import com.example.secretmessage.handler.DatabaseHandler;
 import com.example.secretmessage.handler.EncryptionHandler;
 import com.example.secretmessage.handler.SmsReceiverHandler;
+import com.example.secretmessage.message.Message;
 import com.example.secretmessage.pojo.Contact;
+import com.example.secretmessage.pojo.HandshakeStatus;
 import com.example.secretmessage.utils.CryptoUtil;
 import com.example.secretmessage.utils.StringUtils;
 
@@ -27,6 +29,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
@@ -38,6 +41,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -48,8 +52,11 @@ public class MessagingActivity extends Activity
 	SQLiteDatabase db;
 
 	EncryptionHandler encrypt;
+	DatabaseHandler dbHandler;
 
 	Button button_SendMessage;
+	Button button_init_hs;
+	TextView text_encrypt_status;
 	EditText text_name_number;
 	EditText text_message;
 	ListView messages;
@@ -72,7 +79,7 @@ public class MessagingActivity extends Activity
 		prefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
 		encrypt = EncryptionHandler.getInstance(prefs.getString(MainActivity.AUTH, null));
 		setContentView(R.layout.activity_messaging);
-		DatabaseHandler dbHandler = new DatabaseHandler(this);
+		dbHandler = new DatabaseHandler(this);
 		db = dbHandler.getWritableDatabase();
 		/* Get the intent that alunched the messaging activity to get args */
 		Intent intent = getIntent();
@@ -80,6 +87,8 @@ public class MessagingActivity extends Activity
 		String recipientName = intent.getStringExtra(BaseActivity.reciepientName);
 		Log.d(TAG, "Recipient " + recipient + " Name " + recipientName);
 		button_SendMessage = (Button)findViewById(R.id.button_SendMessage);
+		button_init_hs = (Button) findViewById(R.id.button_startHandshake);
+		text_encrypt_status = (TextView) findViewById(R.id.text_hs_status);
 		text_name_number = (EditText)findViewById(R.id.text_name_number);
 		text_message = (EditText)findViewById(R.id.text_message);
 
@@ -96,15 +105,26 @@ public class MessagingActivity extends Activity
 
 		text_name_number.setText(recipientName + " [" + recipient + "] ");
 
+		button_init_hs.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				initHandShake(recipient);
+				
+			}
+		
+		});
+		
 		button_SendMessage.setOnClickListener(new View.OnClickListener() 
 		{
 
 			public void onClick(View v) 
 			{                
 				String message = text_message.getText().toString();    
+
 				if (recipient.length() > 0 && message.length() > 0)
 				{
-					sendMessage(recipient, message); //Have complete message, send it             
+					sendMessage(recipient, message); //Have complete message, send it   
 				}
 				else
 				{
@@ -117,7 +137,7 @@ public class MessagingActivity extends Activity
 	}
 
 	private void sendMessage(String targetNumber, String targetMessage)
-	{
+	{	
 		SmsManager messageManager = SmsManager.getDefault();
 		messageManager.sendTextMessage(targetNumber, null, targetMessage, null, null);
 		/* Add the sent message to history; */
@@ -126,30 +146,34 @@ public class MessagingActivity extends Activity
 		v.put(SmsReceiverHandler.BODY, targetMessage); 
 		getApplicationContext().getContentResolver().insert(SMS_OUTBOX_URI, v);
 	}
-
-
-	void addContact(Contact contact) {	
-		ContentValues values = new ContentValues();
-		values.put(DatabaseHandler.KEY_NAME, contact.getName());
-		values.put(DatabaseHandler.KEY_PH_NO, contact.getPhoneNumber());
-		values.put(DatabaseHandler.KEY_MSG, contact.getMessage());
-		db.insert(DatabaseHandler.TABLE_CONTACTS, null, values);
+	
+	private void initHandShake(String recipient) {
+		Log.d(TAG, "Sending public key to " + recipient);
+		Message message = new Message('i', encrypt.aProducePublicKey(recipient), recipient);
+		SmsManager messageManager = SmsManager.getDefault();
+		messageManager.sendTextMessage(recipient, null, message.serialize(prefs.getString(MainActivity.AUTH, null)),null, null);
+		dbHandler.updateHsStatus(recipient, HandshakeStatus.SENTPUBLIC);
 	}
+	
+	private void sendPublicKey(String reciepPubkey, String recipient)
+	{
+		
+	}
+
 
 	@Override
 	protected void onResume()
 	{
+		Log.d(TAG, "In" + this);
 		super.onResume();
 		Intent intent = getIntent();
 		String recipient = intent.getStringExtra(BaseActivity.reciepientAddress);
 		updateMessageHistory(recipient);
-		
-		SharedPreferences settings = getSharedPreferences(MainActivity.PREFS_NAME, 0);
-		String stored = settings.getString(MainActivity.AUTH, "");
-		if(encrypt.getKey(recipient,stored) == null)
-			/*TODO handshake */
-			Log.d(TAG, "Should do handshake");
-			
+		HandshakeStatus currentContactStatus = dbHandler.getHSStatus(recipient);
+		if(currentContactStatus.equals(HandshakeStatus.INIT))
+			button_init_hs.setVisibility(View.VISIBLE);
+		if(!currentContactStatus.equals(HandshakeStatus.GENERATED))
+			text_encrypt_status.setVisibility(View.VISIBLE);
 	}
 
 
@@ -198,7 +222,7 @@ public class MessagingActivity extends Activity
 						/* This is the message text from the other part */
 						String messageData = bodies[count];
 						Log.i(TAG, "Data " + messageData);
-						
+
 						bodies[count++] = CryptoUtil.encrypt(messageData, "pass");
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -282,30 +306,6 @@ public class MessagingActivity extends Activity
 	{
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
-	}
-	public static final String BUNDLE_PDU_KEY = "pdus";
-
-	/* Grab message from bundle and handle it */
-	public void onReceive(Context context, Intent intent)
-	{
-		Bundle bundle = intent.getExtras();
-		SmsMessage[] messages = null;
-		String body = "";
-
-		if (bundle != null)
-		{ 	/* Parse recieved message and push to database */
-			Object[] pdus = (Object[]) bundle.get(BUNDLE_PDU_KEY);
-			messages = new SmsMessage[pdus.length];
-
-			for (int i = 0; i < pdus.length; i++)
-			{
-				messages[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
-				body += messages[i].getOriginatingAddress() + " : " + messages[i].getMessageBody() + "\n";
-				//commitMessage(cr, message);
-			}
-
-			Toast.makeText(context, body, Toast.LENGTH_LONG).show();
-		}
 	}
 
 	@Override

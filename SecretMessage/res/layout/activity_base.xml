@@ -52,7 +52,7 @@
     <ListView
         android:id="@+id/listView_Threads"
         android:layout_width="match_parent"
-        android:layout_height="262dp" >
+        android:layout_height="match_parent" >
 
     </ListView>
 
