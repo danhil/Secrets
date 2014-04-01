@@ -16,7 +16,7 @@ public class MainActivity extends Activity {
 
 	// File names and constants
 	static final String TAG = MainActivity.class.getSimpleName();
-	static final String PREFS_NAME = "preferences";
+	public static final String PREFS_NAME = "preferences";
 	static final String AUTH = "auth";
 	static final String AUTHTYPE = "authType";
 	static final String NO_DATA = "nodata";

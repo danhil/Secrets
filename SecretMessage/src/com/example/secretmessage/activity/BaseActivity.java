@@ -44,7 +44,7 @@ public class BaseActivity extends Activity {
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		setContentView(R.layout.activity_base);
-
+		
 		messageThreads = (ListView)findViewById(R.id.listView_Threads);
 		button_Refresh = (Button)findViewById(R.id.button_Refresh);
 		button_Settings = (Button)findViewById(R.id.button_Settings);
@@ -106,8 +106,8 @@ public class BaseActivity extends Activity {
 		String name;
 
 
-		int addressIndex = c.getColumnIndex(SmsReceiverHandler.ADDRESS);
-		int bodyIndex = c.getColumnIndex(SmsReceiverHandler.BODY);
+		int addressIndex = c.getColumnIndex(MessagingService.ADDRESS);
+		int bodyIndex = c.getColumnIndex(MessagingService.BODY);
 
 		int count = 0;
 		if(!c.moveToFirst()) return;

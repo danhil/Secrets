@@ -70,11 +70,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		Cursor cursor = db.query(TABLE_CONTACTS, 
 				new String[]{KEY_HSSTATUS} ,KEY_PH_NO+"="+phoneNbr,
 				null, null, null, null);
-		String hsStatus = "";
+		Byte hsStatus = HandshakeStatus.NOTYETENCRYPT.getValue();
 		if(cursor.getCount() > 1)
 			Log.e(TAG, "The cursor returned more than one hit...");
 		if(cursor.moveToFirst()){
-			hsStatus = cursor.getString(0);
+			hsStatus = (byte) cursor.getShort(0);
 		} else
 		{
 			addContact(new Contact(phoneNbr));

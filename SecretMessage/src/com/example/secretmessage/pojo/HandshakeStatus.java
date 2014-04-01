@@ -2,27 +2,28 @@ package com.example.secretmessage.pojo;
 
 public enum HandshakeStatus {
 	
-	INIT("init"),
-	RECIEVEDPUBLIC("recpub"),
-	SENTPUBLIC("sentpub"),
-	GENERATED("generated"),
-	NOTYETENCRYPT("notEncrypt");
+	INIT((byte) 0xA),
+	SENTPUBLIC((byte) 0xB),
+	RECIEVEDPUBLIC((byte) 0xC),
+	GENERATED((byte) 0XD),
+	NOTYETENCRYPT((byte) 0x0);
 	
-	private String status;
-	private HandshakeStatus(String status)
+	private byte status;
+	private HandshakeStatus(byte status)
 	{
 		this.status = status;
 	}
 	
-	public static HandshakeStatus getStatus(String status)
-	{
+	public static HandshakeStatus getStatus(byte bs)
+	{	
+	
 		for(HandshakeStatus hsStat : HandshakeStatus.values())
-			if(hsStat.status.contains(status))
+			if(hsStat.status == bs )
 				return hsStat;
-		throw new UnsupportedOperationException("The handshake status is not recognized");
+		return HandshakeStatus.NOTYETENCRYPT;
 	}
 	
-	public String getValue()
+	public byte getValue()
 	{
 		return this.status;
 	}

@@ -21,6 +21,7 @@ import com.example.secretmessage.utils.CryptoUtil;
 import com.example.secretmessage.utils.StringUtils;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -44,15 +45,10 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
+/* TODO move messaging stuff to thread */
 public class MessagingActivity extends Activity
 {
 	static final String TAG = MessagingActivity.class.getSimpleName();
-
-	SQLiteDatabase db;
-
-	EncryptionHandler encrypt;
-	DatabaseHandler dbHandler;
 
 	Button button_SendMessage;
 	Button button_init_hs;
@@ -70,17 +66,22 @@ public class MessagingActivity extends Activity
 
 	SharedPreferences prefs;
 
+
+	private DatabaseHandler dbHandler;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		Log.d(TAG,"In the oncreate in messageact");
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		prefs = getSharedPreferences(MainActivity.PREFS_NAME, 0);
-		encrypt = EncryptionHandler.getInstance(prefs.getString(MainActivity.AUTH, null));
-		setContentView(R.layout.activity_messaging);
+		
 		dbHandler = new DatabaseHandler(this);
-		db = dbHandler.getWritableDatabase();
+
+		Log.d(TAG, "Starting the service");
+		
+		setContentView(R.layout.activity_messaging);
+		
 		/* Get the intent that alunched the messaging activity to get args */
 		Intent intent = getIntent();
 		final String recipient = intent.getStringExtra(BaseActivity.reciepientAddress);
@@ -109,8 +110,7 @@ public class MessagingActivity extends Activity
 			
 			@Override
 			public void onClick(View v) {
-				initHandShake(recipient);
-				
+				initHs(recipient);
 			}
 		
 		});
@@ -124,7 +124,8 @@ public class MessagingActivity extends Activity
 
 				if (recipient.length() > 0 && message.length() > 0)
 				{
-					sendMessage(recipient, message); //Have complete message, send it   
+					
+					//sendMessage(recipient, message); //Have complete message, send it   
 				}
 				else
 				{
@@ -135,31 +136,21 @@ public class MessagingActivity extends Activity
 			}
 		});        
 	}
-
-	private void sendMessage(String targetNumber, String targetMessage)
-	{	
-		SmsManager messageManager = SmsManager.getDefault();
-		messageManager.sendTextMessage(targetNumber, null, targetMessage, null, null);
-		/* Add the sent message to history; */
-		ContentValues v = new ContentValues();
-		v.put(SmsReceiverHandler.ADDRESS, targetNumber);
-		v.put(SmsReceiverHandler.BODY, targetMessage); 
-		getApplicationContext().getContentResolver().insert(SMS_OUTBOX_URI, v);
-	}
 	
-	private void initHandShake(String recipient) {
-		Log.d(TAG, "Sending public key to " + recipient);
-		Message message = new Message('i', encrypt.aProducePublicKey(recipient), recipient);
-		SmsManager messageManager = SmsManager.getDefault();
-		messageManager.sendTextMessage(recipient, null, message.serialize(prefs.getString(MainActivity.AUTH, null)),null, null);
-		dbHandler.updateHsStatus(recipient, HandshakeStatus.SENTPUBLIC);
-	}
-	
-	private void sendPublicKey(String reciepPubkey, String recipient)
+	private void initHs(String recipient)
 	{
+		Log.d(TAG, "Starting the service"); 
+		Intent intent = new Intent(this,  MessagingService.class);
+		intent.putExtra("init", recipient);
+		startService(intent);
 		
+		
+		//Messaging service start initHandShake(recipient);
+	    button_init_hs.setVisibility(View.GONE);
 	}
 
+	
+	
 
 	@Override
 	protected void onResume()
@@ -198,9 +189,9 @@ public class MessagingActivity extends Activity
 		int count = 0;
 		ContentResolver cr = getContentResolver();
 		Cursor c = cr.query(SMS_INBOX_URI, null, null, null, null);
-		int addressIndex = c.getColumnIndex(SmsReceiverHandler.ADDRESS);
-		int bodyIndex = c.getColumnIndex(SmsReceiverHandler.BODY);
-		int dateIndex = c.getColumnIndex(SmsReceiverHandler.DATE);
+		int addressIndex = c.getColumnIndex(MessagingService.ADDRESS);
+		int bodyIndex = c.getColumnIndex(MessagingService.BODY);
+		int dateIndex = c.getColumnIndex(MessagingService.DATE);
 
 		Deque<HashMap<String, String>> messageStack = new ArrayDeque<HashMap<String, String>>();
 
@@ -235,9 +226,9 @@ public class MessagingActivity extends Activity
 		c.close();
 
 		Cursor cc = cr.query(SMS_OUTBOX_URI, null, null, null, null);
-		addressIndex = cc.getColumnIndex(SmsReceiverHandler.ADDRESS);
-		bodyIndex = cc.getColumnIndex(SmsReceiverHandler.BODY);
-		dateIndex = cc.getColumnIndex(SmsReceiverHandler.DATE);
+		addressIndex = cc.getColumnIndex(MessagingService.ADDRESS);
+		bodyIndex = cc.getColumnIndex(MessagingService.BODY);
+		dateIndex = cc.getColumnIndex(MessagingService.DATE);
 		int sentCount = 0;
 		long[] sentDates = new long[256];
 		String[] sentBodies = new String[256];
@@ -311,7 +302,6 @@ public class MessagingActivity extends Activity
 	@Override
 	public void onPause() {
 		super.onPause();
-		db.close(); // Closing database connection
-	}   
-
+	}
+	
 };
